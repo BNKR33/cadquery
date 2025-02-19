@@ -1,0 +1,26 @@
+import cadquery as cq
+
+# Paramètres de la poignée
+length = 100  # Longueur totale (mm)
+inner_diameter = 14.5  # Diamètre intérieur (mm)
+outer_diameter = 26  # Diamètre extérieur (mm)
+ring_count = 4  # Nombre d'anneaux
+ring_depth = 2.5  # Profondeur des anneaux (mm)
+ring_width = length / ring_count  # Largeur de chaque anneau
+
+# Création du cylindre principal
+grip = cq.Workplane("XY").circle(outer_diameter / 2).extrude(length)
+
+# Création du trou intérieur
+grip = grip.faces(">Z").workplane().hole(inner_diameter)
+
+# Création des anneaux creusés
+for i in range(ring_count):
+    z_pos = (i + 0.5) * ring_width  # Position de l'anneau
+    groove = cq.Workplane("XY").circle((outer_diameter / 2) - ring_depth).extrude(ring_width * 0.8)
+    grip = grip.cut(groove.translate((0, 0, z_pos - (length / 2))))
+
+# Exportation en STL
+cq.exporters.export(grip, "poignee_annellee.stl")
+
+print("Fichier 'poignee_annellee.stl' généré avec succès !")
